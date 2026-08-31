@@ -229,9 +229,14 @@ document.getElementById('promo-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     Swal.fire({ title: 'Enviando correos...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
     try {
-        const bodyData = { title: document.getElementById('promo-title').value, message: document.getElementById('promo-message').value, discountCode: document.getElementById('promo-code').value };
+        // NUEVO: Agregamos discountPercentage atrapando el valor de la nueva caja HTML
+        const bodyData = { 
+            title: document.getElementById('promo-title').value, 
+            message: document.getElementById('promo-message').value, 
+            discountCode: document.getElementById('promo-code').value,
+            discountPercentage: document.getElementById('promo-discount').value 
+        };
         
-        // CORRECCIÓN DEL 404: Cambiamos /promo a /send-promo para que coincida con el backend
         const response = await fetch('http://localhost:3001/api/coupons/send-promo', { 
             method: 'POST', 
             headers: { 'Content-Type': 'application/json', 'auth-token': token }, 
@@ -242,6 +247,7 @@ document.getElementById('promo-form').addEventListener('submit', async (e) => {
         if(response.ok) {
             Swal.fire('¡Enviado!', data.message, 'success');
             document.getElementById('promo-form').reset();
+            loadCoupons(); // Recargamos la tabla para que veas el cupón recién creado
         } else throw new Error(data.message);
     } catch (error) { Swal.fire('Error', error.message, 'error'); }
 });

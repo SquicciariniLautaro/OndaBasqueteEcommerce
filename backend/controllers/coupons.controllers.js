@@ -56,18 +56,17 @@ export const toggleCoupon = async (req, res) => {
 // Funcion para que el dueño envie un correo electronico masivo con codigo de descuento.
 export const sendPromoEmail = async (req, res) => {
     try {
-        const { title, message, discountCode } = req.body;
+        const { title, message, discountCode, discountPercentage } = req.body;
         const upperCode = discountCode.toUpperCase();
 
-        // NUEVO: Verificamos si el cupón ya existe en la base de datos
         let couponFound = await Coupon.findOne({ code: upperCode });
 
-        // Si no existe, lo creamos automáticamente antes de enviar el correo
+        // Si no existe, lo creamos automáticamente usando el porcentaje manual
         if (!couponFound) {
             const newPromoCoupon = new Coupon({
                 code: upperCode,
-                discountPercentage: 15, // Porcentaje por defecto para regalos (puedes cambiarlo)
-                pointsRequired: 0       // Es un regalo, no pide puntos
+                discountPercentage: discountPercentage, // <-- AHORA ES DINÁMICO
+                pointsRequired: 0       
             });
             await newPromoCoupon.save();
         }
@@ -86,6 +85,7 @@ export const sendPromoEmail = async (req, res) => {
                         <div style="background-color: #f4f4f4; padding: 20px; border-radius: 10px; margin: 20px 0;">
                             <p style="margin: 0; font-size: 16px;">Tu código de regalo es:</p>
                             <h1 style="color: #fca311; letter-spacing: 2px; margin: 10px 0;">${upperCode}</h1>
+                            <p style="font-weight: bold;">(Descuento del ${discountPercentage}%)</p>
                         </div>
                         <p>¡Te esperamos en la tienda!</p>
                     </div>
