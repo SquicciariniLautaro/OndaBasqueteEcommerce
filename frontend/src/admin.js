@@ -21,8 +21,8 @@ const createSizeRow = (size = '', stock = '') => {
     const row = document.createElement('div');
     row.className = 'row mb-2 size-row';
     row.innerHTML = `
-        <div class="col-5"><input type="text" class="form-control size-input shadow-none" placeholder="Talle (Ej: 40 o L)" value="${size}" required></div>
-        <div class="col-5"><input type="number" class="form-control stock-input shadow-none" placeholder="Cantidad" value="${stock}" required></div>
+        <div class="col-5"><input type="text" class="form-control size-input shadow-none bg-light border-0" placeholder="Talle (Ej: 40 o L)" value="${size}" required></div>
+        <div class="col-5"><input type="number" class="form-control stock-input shadow-none bg-light border-0" placeholder="Cantidad" value="${stock}" required></div>
         <div class="col-2"><button type="button" class="btn btn-danger w-100 remove-size-btn fw-bold shadow-none">X</button></div>
     `;
     row.querySelector('.remove-size-btn').addEventListener('click', () => row.remove());
@@ -39,7 +39,7 @@ const loadInventory = async () => {
         
         tableBody.innerHTML = '';
         if (!data.results || data.results.length === 0) {
-            tableBody.innerHTML = '<tr><td colspan="5" class="text-center">No hay productos.</td></tr>';
+            tableBody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-muted">No hay productos.</td></tr>';
             return;
         }
 
@@ -49,22 +49,26 @@ const loadInventory = async () => {
                 : `<span class="fw-bold">$${product.price}</span>`;
 
             const mainImg = (product.images && product.images.length > 0) ? product.images[0] : product.image;
-            const starClass = product.isFeatured ? 'btn-success' : 'btn-outline-success';
+            
+            // UI ACTUALIZADA: Usamos btn-dark para destacado y btn-outline-dark para no destacado
+            const starClass = product.isFeatured ? 'btn-dark' : 'btn-outline-dark';
             const starText = product.isFeatured ? 'Destacado' : 'Destacar';
 
             tableBody.innerHTML += `
                 <tr>
-                    <td><img src="${mainImg}" alt="img" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px;"></td>
+                    <td class="px-4"><img src="${mainImg}" alt="img" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px;"></td>
                     <td>
                         <span class="fw-bold d-block">${product.model}</span>
                         <span class="small text-muted">${product.brand} | ${product.category || 'Zapatillas'}</span>
                     </td>
                     <td><span class="badge bg-secondary">${product.stock || 0} u. total</span></td>
                     <td>${priceHtml}</td>
-                    <td class="text-center">
+                    <td class="text-center px-4">
                         <button class="btn btn-sm ${starClass} me-1 fw-bold" onclick="toggleFeatured('${product._id}')">${starText}</button>
-                        <button class="btn btn-sm btn-warning me-1" onclick='editProduct(${JSON.stringify(product).replace(/'/g, "&apos;")})'>EDITAR</button>
-                        <button class="btn btn-sm btn-danger" onclick="deleteProduct('${product._id}')">ELIMINAR</button>
+                        <!-- UI ACTUALIZADA: Botón Editar ahora es negro transparente -->
+                        <button class="btn btn-sm btn-outline-dark me-1 fw-bold" onclick='editProduct(${JSON.stringify(product).replace(/'/g, "&apos;")})'>EDITAR</button>
+                        <!-- Se mantiene rojo para Eliminar -->
+                        <button class="btn btn-sm btn-danger fw-bold" onclick="deleteProduct('${product._id}')">ELIMINAR</button>
                     </td>
                 </tr>
             `;
@@ -97,7 +101,6 @@ productForm.addEventListener('submit', async (e) => {
         document.querySelectorAll('.size-row').forEach(row => {
             const s = row.querySelector('.size-input').value;
             const q = row.querySelector('.stock-input').value;
-            // Usamos String() para asegurarnos de que acepte letras (S, M, L) y números
             if(s && q) sizesList.push({ size: String(s), stock: Number(q) });
         });
         formData.append('sizes', JSON.stringify(sizesList));
@@ -172,18 +175,20 @@ const loadCoupons = async () => {
     try {
         const response = await fetch('http://localhost:3001/api/coupons', { headers: { 'auth-token': token } });
         const data = await response.json();
-        if (data.length === 0) { tbody.innerHTML = '<tr><td colspan="3" class="text-center text-muted py-3">No hay cupones creados.</td></tr>'; return; }
+        if (data.length === 0) { tbody.innerHTML = '<tr><td colspan="3" class="text-center text-muted py-4">No hay cupones creados.</td></tr>'; return; }
         tbody.innerHTML = data.map(c => `
             <tr>
-                <td><span class="fw-bold text-primary">${c.code}</span><br><span class="text-muted" style="font-size: 0.7rem;">Req: ${c.pointsRequired} pts</span></td>
-                <td><span class="fw-bold text-success">-${c.discountPercentage}%</span><br><span class="badge ${c.isActive ? 'bg-success' : 'bg-secondary'}" style="font-size: 0.65rem;">${c.isActive ? 'Activo' : 'Apagado'}</span></td>
-                <td class="text-center">
-                    <button class="btn btn-sm ${c.isActive ? 'btn-outline-warning' : 'btn-outline-success'} w-100 mb-1" style="font-size: 0.7rem; font-weight: bold;" onclick="toggleCouponStatus('${c._id}')">${c.isActive ? 'Apagar' : 'Encender'}</button>
-                    <button class="btn btn-sm btn-danger w-100" style="font-size: 0.7rem; font-weight: bold;" onclick="deleteCouponAdmin('${c._id}')">Borrar</button>
+                <td class="px-3"><span class="fw-bold text-dark">${c.code}</span><br><span class="text-muted" style="font-size: 0.75rem;">Req: ${c.pointsRequired} pts</span></td>
+                <td><span class="fw-bold text-dark">-${c.discountPercentage}%</span><br><span class="badge ${c.isActive ? 'bg-dark' : 'bg-secondary'}" style="font-size: 0.65rem;">${c.isActive ? 'Activo' : 'Apagado'}</span></td>
+                <td class="text-center px-3">
+                    <!-- UI ACTUALIZADA: Botones oscuros y minimalistas -->
+                    <button class="btn btn-sm ${c.isActive ? 'btn-dark' : 'btn-outline-dark'} w-100 mb-1 fw-bold" style="font-size: 0.75rem;" onclick="toggleCouponStatus('${c._id}')">${c.isActive ? 'Apagar' : 'Encender'}</button>
+                    <!-- Se mantiene rojo para Borrar -->
+                    <button class="btn btn-sm btn-danger w-100 fw-bold" style="font-size: 0.75rem;" onclick="deleteCouponAdmin('${c._id}')">Borrar</button>
                 </td>
             </tr>
         `).join('');
-    } catch (error) { tbody.innerHTML = '<tr><td colspan="3" class="text-center text-danger py-3">Error.</td></tr>'; }
+    } catch (error) { tbody.innerHTML = '<tr><td colspan="3" class="text-center text-danger py-4">Error.</td></tr>'; }
 };
 
 window.toggleCouponStatus = async (id) => {
@@ -225,7 +230,14 @@ document.getElementById('promo-form').addEventListener('submit', async (e) => {
     Swal.fire({ title: 'Enviando correos...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
     try {
         const bodyData = { title: document.getElementById('promo-title').value, message: document.getElementById('promo-message').value, discountCode: document.getElementById('promo-code').value };
-        const response = await fetch('http://localhost:3001/api/coupons/promo', { method: 'POST', headers: { 'Content-Type': 'application/json', 'auth-token': token }, body: JSON.stringify(bodyData) });
+        
+        // CORRECCIÓN DEL 404: Cambiamos /promo a /send-promo para que coincida con el backend
+        const response = await fetch('http://localhost:3001/api/coupons/send-promo', { 
+            method: 'POST', 
+            headers: { 'Content-Type': 'application/json', 'auth-token': token }, 
+            body: JSON.stringify(bodyData) 
+        });
+        
         const data = await response.json();
         if(response.ok) {
             Swal.fire('¡Enviado!', data.message, 'success');
@@ -242,25 +254,26 @@ const loadReviews = async () => {
         const response = await fetch('http://localhost:3001/api/reviews');
         const data = await response.json();
         if (data.length === 0) {
-            tbody.innerHTML = '<tr><td class="text-center text-muted py-3">No hay reseñas activas.</td></tr>';
+            tbody.innerHTML = '<tr><td class="text-center text-muted py-4">No hay reseñas activas.</td></tr>';
             return;
         }
         tbody.innerHTML = data.map(r => `
             <tr>
-                <td style="width: 50px;">
-                    <img src="${r.image}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+                <td style="width: 60px;" class="px-3">
+                    <img src="${r.image}" style="width: 45px; height: 45px; border-radius: 50%; object-fit: cover;">
                 </td>
                 <td>
-                    <span class="fw-bold d-block">${r.clientName}</span>
-                    <span class="text-muted" style="font-size: 0.7rem;">${r.clientRole}</span>
+                    <span class="fw-bold d-block text-dark">${r.clientName}</span>
+                    <span class="text-muted" style="font-size: 0.8rem;">${r.clientRole}</span>
                 </td>
-                <td class="text-end">
-                    <button class="btn btn-sm btn-danger fw-bold" onclick="deleteReview('${r._id}')">X</button>
+                <td class="text-end px-3">
+                    <!-- Se mantiene rojo para Eliminar -->
+                    <button class="btn btn-sm btn-danger fw-bold px-3" onclick="deleteReview('${r._id}')">Eliminar</button>
                 </td>
             </tr>
         `).join('');
     } catch (error) {
-        tbody.innerHTML = '<tr><td class="text-center text-danger py-3">Error al cargar.</td></tr>';
+        tbody.innerHTML = '<tr><td class="text-center text-danger py-4">Error al cargar.</td></tr>';
     }
 };
 
@@ -319,9 +332,9 @@ const loadAdminOrders = async () => {
 
         tbody.innerHTML = orders.map(order => `
             <tr>
-                <td class="small">${new Date(order.createdAt).toLocaleDateString()}</td>
+                <td class="small px-4">${new Date(order.createdAt).toLocaleDateString()}</td>
                 <td class="small fw-bold">${order.user?.name || 'Usuario Eliminado'}<br><span class="text-muted fw-normal" style="font-size: 0.75rem;">${order.user?.email || ''}</span></td>
-                <td class="fw-bold text-success">$${order.totalAmount.toLocaleString('es-AR')}</td>
+                <td class="fw-bold text-dark">$${order.totalAmount.toLocaleString('es-AR')}</td>
                 <td>
                     <select class="form-select form-select-sm shadow-none border-secondary" id="status-${order._id}">
                         <option value="Pendiente" ${order.status === 'Pendiente' ? 'selected' : ''}>Pendiente</option>
@@ -331,8 +344,8 @@ const loadAdminOrders = async () => {
                         <option value="Cancelado" ${order.status === 'Cancelado' ? 'selected' : ''}>Cancelado</option>
                     </select>
                 </td>
-                <td><input type="text" class="form-control form-control-sm shadow-none border-secondary" id="tracking-${order._id}" value="${order.trackingCode || ''}" placeholder="Ej: CP123..."></td>
-                <td>
+                <td><input type="text" class="form-control form-control-sm shadow-none border-secondary bg-light" id="tracking-${order._id}" value="${order.trackingCode || ''}" placeholder="Ej: CP123..."></td>
+                <td class="px-4">
                     <div class="d-flex gap-2">
                         <button class="btn btn-dark btn-sm fw-bold flex-grow-1" onclick="updateOrder('${order._id}')">Guardar</button>
                         <button class="btn btn-danger btn-sm fw-bold" onclick="deleteOrder('${order._id}')">X</button>

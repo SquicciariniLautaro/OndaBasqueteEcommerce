@@ -146,7 +146,8 @@ if (checkoutForm) {
                 zipCode: document.getElementById('zipCode').value.trim()
             },
             shippingCost: 0, 
-            pointsToUse: pointsToDeduct 
+            pointsToUse: pointsToDeduct,
+            couponCode: document.getElementById('coupon-input').value.trim()
         };
 
         try {

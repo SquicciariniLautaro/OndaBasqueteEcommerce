@@ -39,7 +39,7 @@
                             <div class="col-sm-6">
                                 <label class="form-label small fw-bold">DNI</label>
                                 <!-- Se utiliza type="number" para abrir el teclado numérico en celulares -->
-                                <input type="number" class="form-control bg-light border-0 py-2" id="dni" required>
+                                <input type="number" class="form-control bg-light border-0 py-2" id="dni" min="0" onkeypress="return event.charCode >= 48 && event.charCode <= 57" required>
                             </div>
                                 <label class="form-label small fw-bold">Calle</label>
                                 <input type="text" class="form-control bg-light border-0 py-2" id="street" required>

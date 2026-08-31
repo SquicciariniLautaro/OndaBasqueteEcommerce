@@ -192,3 +192,8 @@ body {
     -ms-overflow-style: none;  /* Oculta en IE y Edge */
     scrollbar-width: none;  /* Oculta en Firefox */
 }
+
+/* Le da color naranja a todos los títulos de las tarjetas del admin */
+.card-header h5, .card-header h6 {
+    color: #ff6b00 !important;
+}
