@@ -29,9 +29,21 @@ const limiter = rateLimit({
 });
 app.use('/api/', limiter); // Aplicamos el limitador a las rutas de la API
 
-// Configuración de CORS más segura
+// Configuración de CORS estricta para producción y desarrollo local
+const allowedOrigins = [
+    process.env.FRONTEND_URL, // Tu futuro dominio en Hostinger (Ej: https://ondabasquete.com)
+    'http://localhost:5173'   // Tu entorno de desarrollo local Vite
+];
+
 const corsOptions = {
-    origin: process.env.FRONTEND_URL || '*', // En producción deberías especificar la URL real
+    origin: function (origin, callback) {
+        // Permite peticiones sin origen (como las del propio servidor) o las que estén en la lista blanca
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('Bloqueado por CORS: Origen no autorizado'));
+        }
+    },
     optionsSuccessStatus: 200
 };
 app.use(cors(corsOptions));
