@@ -4,6 +4,7 @@ node_modules/
 # Archivos de entorno (por si en el futuro agregas uno)
 .env
 .env.local
+dist
 
 # Logs y archivos del sistema
 npm-debug.log*
